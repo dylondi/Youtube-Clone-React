@@ -1,27 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Grid } from '@material-ui/core';
 import { SearchBar, VideoDetail, VideoList } from './components'
 
 
 import youtube from './api/youtube';
 
-class App extends React.Component{
+const App = () => {
+    const [ videos, setVideos ] = useState([]);
+    const [ selectedVideo, setSelectedVideo ] = useState(null);
 
-    state = {
-        videos: [],
-        selectedVide: null,
-    }
 
-    componentDidMount(){
-        this.handleSubmit('latest news');
-    }
-
-    onVideoSelect = (video) => {
-        this.setState({selectedVideo: video });
-    }
-
-    handleSubmit = async (searchTerm) => {
-    const response = await youtube.get('search', {     
+    const handleSubmit = async (searchTerm) => {
+        const response = await youtube.get('search', {     
         params: {
             part: 'snippet',
             maxResults: 5,
@@ -29,30 +19,28 @@ class App extends React.Component{
             q: searchTerm
     }});
 
-    this.setState({videos: response.data.items, selectedVideo: response.data.items[0]});
-}
-
-    render(){
-        const {selectedVideo, videos } = this.state;
-        return (
-            <Grid justifyContent="center" container spacing={10}>
-                <Grid item xs={12}>
-                    <Grid container spacing={10}>
-                        <Grid item xs={12}>
-                            <SearchBar onFormSubmit={this.handleSubmit} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <VideoDetail video={selectedVideo}/>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <VideoList videos={videos} onVideoSelect={this.onVideoSelect} />
-                        </Grid>
-
-                    </Grid>
-                </Grid>
-            </Grid>
-        )
+    setVideos(response.data.items);
+    setSelectedVideo(response.data.items[0]);
     }
+
+    return (
+        <Grid justifyContent="center" container spacing={10}>
+        <Grid item xs={12}>
+            <Grid container spacing={10}>
+                <Grid item xs={12}>
+                    <SearchBar onFormSubmit={handleSubmit} />
+                </Grid>
+                <Grid item xs={8}>
+                    <VideoDetail video={selectedVideo}/>
+                </Grid>
+                <Grid item xs={4}>
+                    <VideoList videos={videos} onVideoSelect={setSelectedVideo} />
+                </Grid>
+
+            </Grid>
+        </Grid>
+    </Grid>
+    )
 }
 
 
